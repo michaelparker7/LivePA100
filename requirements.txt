@@ -1,0 +1,8 @@
+seaborn
+streamlit
+datetime
+pandas
+pickle
+warnings
+plotly
+collections
