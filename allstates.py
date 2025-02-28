@@ -1,11 +1,17 @@
 import seaborn as sns
 import streamlit as st
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import pandas as pd
 import pickle
 import warnings
 import plotly.express as px
 from collections import defaultdict
+from bs4 import BeautifulSoup
+import openai
+import requests
+
+
+api_key = st.secrets["openai"]["api_key"]
 
 st.set_page_config(layout="wide")
 
@@ -271,6 +277,21 @@ final_returns['Return'] = pd.to_numeric(final_returns['Return'], errors='coerce'
 final_returns['Return'] = (final_returns['Return'] * 100).round(2)
 final_returns['Return'] = final_returns['Return'].astype(str) + '%'
 
+
+
+stock_returns = {}
+
+for ticker in final_df.columns[:-5]:  # Exclude non-stock columns
+    if final_df[ticker].notna().sum() > 1:  # Ensure enough data points
+        stock_returns[ticker] = ((final_df[ticker].iloc[-1] / final_df[ticker].iloc[0]) - 1) * 100
+
+stock_returns_df = pd.DataFrame(list(stock_returns.items()), columns=['Ticker', 'Return'])
+stock_returns_df = stock_returns_df.dropna()
+
+best_stock = stock_returns_df.loc[stock_returns_df['Return'].idxmax()]
+worst_stock = stock_returns_df.loc[stock_returns_df['Return'].idxmin()]
+
+
 if st.sidebar.button('Create Index'):
     y_axis_min = index_df.min() - 5
     y_axis_max = index_df.max() + 5
@@ -311,5 +332,11 @@ if st.sidebar.button('Create Index'):
         st.pyplot(fig2)
         st.write(final_df)
 
+        st.subheader("Stock Performance Summary")
+        st.write(f"**Best Performing Stock:** {best_stock['Ticker']} with a return of {round(best_stock['Return'], 2)}%")
+        st.write(f"**Worst Performing Stock:** {worst_stock['Ticker']} with a return of {round(worst_stock['Return'], 2)}%")
+
+
+        
     with col1_analytics:
         st.write(final_returns)
