@@ -6,12 +6,7 @@ import pickle
 import warnings
 import plotly.express as px
 from collections import defaultdict
-from bs4 import BeautifulSoup
-import openai
-import requests
 
-
-api_key = st.secrets["openai"]["api_key"]
 
 st.set_page_config(layout="wide")
 
