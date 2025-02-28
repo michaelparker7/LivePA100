@@ -4,4 +4,3 @@ datetime
 pandas
 plotly
 openpyxl
-BeautifulSoup
